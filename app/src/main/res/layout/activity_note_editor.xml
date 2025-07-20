@@ -88,6 +88,22 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Tukar Video kepada GIF" />
 
+            <ImageButton
+                android:id="@+id/voiceToTextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_mic"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Suara ke Teks" />
+
+            <ImageButton
+                android:id="@+id/setBackgroundImageButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_background"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Tetapkan Imej Latar Belakang" />
+
         </LinearLayout>
 
     </com.google.android.material.bottomappbar.BottomAppBar>

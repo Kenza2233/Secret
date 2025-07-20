@@ -1,15 +1,24 @@
 package com.example.noteapp.view
 
+import android.Manifest
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.speech.RecognizerIntent
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.transition.Transition
 import com.example.noteapp.databinding.ActivityNoteEditorBinding
 import com.example.noteapp.model.Image
 import com.example.noteapp.model.Note
@@ -26,6 +35,9 @@ class NoteEditorActivity : AppCompatActivity() {
     companion object {
         private const val IMAGE_PICK_CODE = 1000
         private const val VIDEO_PICK_CODE = 1001
+        private const val SPEECH_REQUEST_CODE = 1002
+        private const val BACKGROUND_IMAGE_PICK_CODE = 1003
+        private const val RECORD_AUDIO_PERMISSION_CODE = 101
         const val EXTRA_NOTE_ID = "extra_note_id"
     }
 
@@ -43,6 +55,9 @@ class NoteEditorActivity : AppCompatActivity() {
                 currentNote = noteWithImages.note
                 binding.titleEditText.setText(noteWithImages.note.title)
                 binding.contentEditText.setText(noteWithImages.note.content)
+                noteWithImages.note.backgroundImageUri?.let {
+                    setBackgroundImage(Uri.parse(it))
+                }
                 // Paparkan imej sedia ada...
             }
         }
@@ -57,6 +72,44 @@ class NoteEditorActivity : AppCompatActivity() {
 
         binding.convertToGifButton.setOnClickListener {
             openVideoPicker()
+        }
+
+        binding.voiceToTextButton.setOnClickListener {
+            startVoiceRecognition()
+        }
+
+        binding.setBackgroundImageButton.setOnClickListener {
+            openBackgroundImagePicker()
+        }
+    }
+
+    private fun openBackgroundImagePicker() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "image/*"
+        startActivityForResult(intent, BACKGROUND_IMAGE_PICK_CODE)
+    }
+
+    private fun setBackgroundImage(uri: Uri) {
+        Glide.with(this)
+            .load(uri)
+            .into(object : CustomTarget<Drawable>() {
+                override fun onResourceReady(resource: Drawable, transition: Transition<in Drawable>?) {
+                    binding.root.background = resource
+                }
+                override fun onLoadCleared(placeholder: Drawable?) {}
+            })
+        currentNote = currentNote?.copy(backgroundImageUri = uri.toString())
+            ?: Note(title = "", content = "", backgroundImageUri = uri.toString())
+    }
+
+    private fun startVoiceRecognition() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.RECORD_AUDIO), RECORD_AUDIO_PERMISSION_CODE)
+        } else {
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH)
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            intent.putExtra(RecognizerIntent.EXTRA_PROMPT, "Cakap sekarang...")
+            startActivityForResult(intent, SPEECH_REQUEST_CODE)
         }
     }
 
@@ -117,7 +170,25 @@ class NoteEditorActivity : AppCompatActivity() {
                         convertVideoToGif(uri)
                     }
                 }
+                SPEECH_REQUEST_CODE -> {
+                    data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.let { results ->
+                        val spokenText = results[0]
+                        binding.contentEditText.append(" $spokenText")
+                    }
+                }
+                BACKGROUND_IMAGE_PICK_CODE -> {
+                    data?.data?.let { uri ->
+                        setBackgroundImage(uri)
+                    }
+                }
             }
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == RECORD_AUDIO_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            startVoiceRecognition()
         }
     }
 

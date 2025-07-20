@@ -12,5 +12,6 @@ data class Note(
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis(),
     val backgroundColor: String = "#FFFFFF",
-    val gridStyle: String = "kosong"
+    val gridStyle: String = "kosong",
+    val backgroundImageUri: String? = null
 )
