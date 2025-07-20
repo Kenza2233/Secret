@@ -25,6 +25,7 @@ interface NoteDao {
     @Query("SELECT * FROM notes WHERE id = :noteId")
     fun getNoteWithImages(noteId: Int): Flow<NoteWithImages>
 
+    @Transaction
     @Query("SELECT * FROM notes ORDER BY updatedAt DESC")
-    fun getAllNotes(): Flow<List<Note>>
+    fun getAllNotesWithImages(): Flow<List<NoteWithImages>>
 }
