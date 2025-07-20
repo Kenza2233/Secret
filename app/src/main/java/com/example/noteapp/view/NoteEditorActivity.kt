@@ -39,6 +39,12 @@ class NoteEditorActivity : AppCompatActivity() {
         private const val BACKGROUND_IMAGE_PICK_CODE = 1003
         private const val RECORD_AUDIO_PERMISSION_CODE = 101
         const val EXTRA_NOTE_ID = "extra_note_id"
+
+        fun newIntent(context: Context, noteId: Int? = null): Intent {
+            return Intent(context, NoteEditorActivity::class.java).apply {
+                noteId?.let { putExtra(EXTRA_NOTE_ID, it) }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,15 +55,12 @@ class NoteEditorActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        val noteId = intent.getIntExtra(EXTRA_NOTE_ID, -1)
-        if (noteId != -1) {
+        intent.getIntExtra(EXTRA_NOTE_ID, -1).takeIf { it != -1 }?.let { noteId ->
             noteViewModel.getNoteWithImages(noteId).observe(this) { noteWithImages ->
                 currentNote = noteWithImages.note
                 binding.titleEditText.setText(noteWithImages.note.title)
                 binding.contentEditText.setText(noteWithImages.note.content)
-                noteWithImages.note.backgroundImageUri?.let {
-                    setBackgroundImage(Uri.parse(it))
-                }
+                noteWithImages.note.backgroundImageUri?.also { setBackgroundImage(Uri.parse(it)) }
                 // Paparkan imej sedia ada...
             }
         }
@@ -83,10 +86,14 @@ class NoteEditorActivity : AppCompatActivity() {
         }
     }
 
-    private fun openBackgroundImagePicker() {
+    private fun openFilePicker(type: String, requestCode: Int) {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        intent.type = "image/*"
-        startActivityForResult(intent, BACKGROUND_IMAGE_PICK_CODE)
+        intent.type = "$type/*"
+        startActivityForResult(intent, requestCode)
+    }
+
+    private fun openBackgroundImagePicker() {
+        openFilePicker("image", BACKGROUND_IMAGE_PICK_CODE)
     }
 
     private fun setBackgroundImage(uri: Uri) {
@@ -114,9 +121,7 @@ class NoteEditorActivity : AppCompatActivity() {
     }
 
     private fun openVideoPicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
-        intent.type = "video/*"
-        startActivityForResult(intent, VIDEO_PICK_CODE)
+        openFilePicker("video", VIDEO_PICK_CODE)
     }
 
     private fun convertVideoToGif(videoUri: Uri) {
@@ -150,9 +155,7 @@ class NoteEditorActivity : AppCompatActivity() {
     }
 
     private fun openImagePicker() {
-        val intent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
-        intent.type = "image/*"
-        startActivityForResult(intent, IMAGE_PICK_CODE)
+        openFilePicker("image", IMAGE_PICK_CODE)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

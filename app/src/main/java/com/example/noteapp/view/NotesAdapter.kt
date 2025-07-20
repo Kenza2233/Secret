@@ -1,14 +1,16 @@
 package com.example.noteapp.view
 
+import android.content.Intent
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import android.view.View
-import com.bumptech.glide.Glide
 import com.example.noteapp.databinding.ItemNoteBinding
 import com.example.noteapp.model.NoteWithImages
+import com.example.noteapp.util.hide
+import com.example.noteapp.util.loadImage
+import com.example.noteapp.util.show
 
 class NotesAdapter : ListAdapter<NoteWithImages, NotesAdapter.NoteViewHolder>(NoteDiffCallback()) {
 
@@ -30,19 +32,15 @@ class NotesAdapter : ListAdapter<NoteWithImages, NotesAdapter.NoteViewHolder>(No
                 noteTitleTextView.text = noteWithImages.note.title
                 noteContentTextView.text = noteWithImages.note.content
 
-                if (noteWithImages.images.isNotEmpty()) {
-                    noteImageView.visibility = View.VISIBLE
-                    Glide.with(itemView.context)
-                        .load(noteWithImages.images[0].uri)
-                        .into(noteImageView)
-                } else {
-                    noteImageView.visibility = View.GONE
+                noteWithImages.images.firstOrNull()?.let {
+                    noteImageView.show()
+                    noteImageView.loadImage(it.uri)
+                } ?: run {
+                    noteImageView.hide()
                 }
 
                 itemView.setOnClickListener {
-                    val intent = Intent(itemView.context, NoteEditorActivity::class.java).apply {
-                        putExtra(NoteEditorActivity.EXTRA_NOTE_ID, noteWithImages.note.id)
-                    }
+                    val intent = NoteEditorActivity.newIntent(itemView.context, noteWithImages.note.id)
                     itemView.context.startActivity(intent)
                 }
             }

@@ -26,8 +26,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.addNoteFab.setOnClickListener {
-            val intent = Intent(this, NoteEditorActivity::class.java)
-            startActivity(intent)
+            startActivity(NoteEditorActivity.newIntent(this))
         }
     }
 
