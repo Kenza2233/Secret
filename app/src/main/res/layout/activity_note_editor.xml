@@ -80,6 +80,14 @@
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Tukar Grid" />
 
+            <ImageButton
+                android:id="@+id/convertToGifButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_gif"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Tukar Video kepada GIF" />
+
         </LinearLayout>
 
     </com.google.android.material.bottomappbar.BottomAppBar>

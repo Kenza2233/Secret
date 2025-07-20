@@ -1,16 +1,20 @@
 package com.example.noteapp.view
 
-import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Bundle
+import android.os.Environment
 import android.provider.MediaStore
 import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.arthenica.mobileffmpeg.Config
+import com.arthenica.mobileffmpeg.FFmpeg
 import com.example.noteapp.databinding.ActivityNoteEditorBinding
-import com.example.noteapp.model.Note
 import com.example.noteapp.model.Image
+import com.example.noteapp.model.Note
 import com.example.noteapp.viewmodel.NoteViewModel
+import java.io.File
 
 class NoteEditorActivity : AppCompatActivity() {
 
@@ -21,6 +25,7 @@ class NoteEditorActivity : AppCompatActivity() {
 
     companion object {
         private const val IMAGE_PICK_CODE = 1000
+        private const val VIDEO_PICK_CODE = 1001
         const val EXTRA_NOTE_ID = "extra_note_id"
     }
 
@@ -49,6 +54,33 @@ class NoteEditorActivity : AppCompatActivity() {
         binding.addImageButton.setOnClickListener {
             openImagePicker()
         }
+
+        binding.convertToGifButton.setOnClickListener {
+            openVideoPicker()
+        }
+    }
+
+    private fun openVideoPicker() {
+        val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
+        intent.type = "video/*"
+        startActivityForResult(intent, VIDEO_PICK_CODE)
+    }
+
+    private fun convertVideoToGif(videoUri: Uri) {
+        val outputDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        val outputFile = File(outputDir, "output_${System.currentTimeMillis()}.gif")
+
+        val command = "-i ${videoUri.path} -vf \"fps=10,scale=320:-1:flags=lanczos\" -c:v gif ${outputFile.absolutePath}"
+
+        FFmpeg.executeAsync(command) { _, returnCode ->
+            if (returnCode == Config.RETURN_CODE_SUCCESS) {
+                // Penukaran berjaya, tambah GIF pada nota
+                selectedImages.add(Image(uri = Uri.fromFile(outputFile).toString(), caption = "GIF"))
+                // Paparkan GIF yang baru dibuat...
+            } else {
+                // Penukaran gagal
+            }
+        }
     }
 
     private fun saveNote() {
@@ -72,10 +104,19 @@ class NoteEditorActivity : AppCompatActivity() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_PICK_CODE) {
-            data?.data?.let { uri ->
-                selectedImages.add(Image(uri = uri.toString(), caption = null))
-                // Paparkan imej yang baru dipilih...
+        if (resultCode == Activity.RESULT_OK) {
+            when (requestCode) {
+                IMAGE_PICK_CODE -> {
+                    data?.data?.let { uri ->
+                        selectedImages.add(Image(uri = uri.toString(), caption = null))
+                        // Paparkan imej yang baru dipilih...
+                    }
+                }
+                VIDEO_PICK_CODE -> {
+                    data?.data?.let { uri ->
+                        convertVideoToGif(uri)
+                    }
+                }
             }
         }
     }

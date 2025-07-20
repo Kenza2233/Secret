@@ -25,11 +25,42 @@ Aplikasi nota yang kaya dengan ciri untuk Android, direka untuk membantu anda me
 
 ## Pemasangan
 
-Untuk membina dan menjalankan projek ini, anda memerlukan Android Studio.
+Untuk membina dan menjalankan projek ini, anda memerlukan Android Studio Arctic Fox | 2020.3.1 atau lebih baharu.
 
-1.  Klon repositori ini: `git clone https://github.com/USERNAME/note-app-pro.git`
-2.  Buka projek dalam Android Studio.
-3.  Jalankan aplikasi pada emulator atau peranti Android.
+### Langkah-langkah
+
+1.  **Klon Repositori**
+
+    Buka terminal atau Git Bash dan klon repositori ini ke mesin tempatan anda:
+    ```bash
+    git clone https://github.com/USERNAME/note-app-pro.git
+    ```
+
+2.  **Buka Projek dalam Android Studio**
+
+    *   Lancarkan Android Studio.
+    *   Pilih **Open an Existing Project**.
+    *   Navigasi ke direktori tempat anda mengklon repositori dan pilihnya.
+    *   Android Studio akan mengambil sedikit masa untuk menyegerakkan dan membina projek menggunakan Gradle.
+
+3.  **Sediakan Emulator atau Peranti**
+
+    *   **Emulator:**
+        *   Dalam Android Studio, pergi ke **Tools > AVD Manager**.
+        *   Klik **Create Virtual Device...**.
+        *   Pilih definisi perkakasan (contoh: Pixel 5) dan klik **Next**.
+        *   Pilih imej sistem (disyorkan API 30 atau lebih tinggi) dan klik **Next**.
+        *   Sahkan konfigurasi dan klik **Finish**.
+    *   **Peranti Fizikal:**
+        *   Dayakan **Developer Options** dan **USB Debugging** pada peranti Android anda.
+        *   Sambungkan peranti ke komputer anda melalui USB.
+        *   Pilih **File Transfer** atau **PTP** pada peranti anda.
+
+4.  **Jalankan Aplikasi**
+
+    *   Pilih emulator atau peranti anda yang disambungkan dari menu lungsur turun peranti di bahagian atas tetingkap Android Studio.
+    *   Klik butang **Run 'app'** (ikon segi tiga hijau) atau gunakan pintasan `Shift + F10`.
+    *   Aplikasi akan dipasang dan dilancarkan pada peranti/emulator yang dipilih.
 
 ## Sumbangan
 
